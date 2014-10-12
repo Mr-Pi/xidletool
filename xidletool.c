@@ -37,6 +37,7 @@ the GNU GPL, version 2 _only_.
 #include <X11/extensions/dpms.h>
 #include <X11/extensions/scrnsaver.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
