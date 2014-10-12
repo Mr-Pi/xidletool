@@ -1,9 +1,10 @@
 /*
 
-This program prints the "idle time" of the user to stdout.  The "idle
-time" is the number of milliseconds since input was received on any
-input device.  If unsuccessful, the program prints a message to stderr
-and exits with a non-zero exit code.
+xidletool, a program that prints the idle user time to stdout. You can
+optionally set a target time, in milliseconds. If reached, the program will
+exit.
+
+Based on xprintidle, https://github.com/pmaia/xprintidle-plus
 
 Copyright (c) 2005, 2008 Magnus Henoch <henoch@dtek.chalmers.se>
 Copyright (c) 2006, 2007 by Danny Kukawka

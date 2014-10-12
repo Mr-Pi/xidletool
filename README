@@ -1,14 +1,22 @@
-xprintidle is a utility that queries the X server for the user's idle
-time and prints it to stdout (in milliseconds).
+xidletool is a program that reads a user's idle time from the X server.
+It either prints the idle time to stdout or allows you to set a target
+idle time. If the target is reached, the program exits.
 
-Basically, type "./configure && make && sudo make install" to compile
-and install the program.  See the INSTALL file for more detailed
-instructions.
+Building a release:
 
-You need the development files for the Xss library.  In Debian, they
-are in the package 'libxss-dev' or 'xlibs-static-dev', depending on
-your version.
+./configure
+make
+make install
 
-Web page: http://www.dtek.chalmers.se/~henoch/text/xprintidle.html
-E-mail: Magnus Henoch <henoch@dtek.chalmers.se>
-Jabber/XMPP: legoscia@jabber.cd.chalmers.se
+Building from git: 
+
+autoreconf
+automake -c --add-missing
+autoreconf
+./configure
+make
+make install
+
+You need the development files for the Xss library.
+
+Web page: https://github.com/wired/xidletool

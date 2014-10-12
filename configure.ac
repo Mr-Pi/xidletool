@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT([xprintidle], [0.2], [henoch@dtek.chalmers.se])
-AM_INIT_AUTOMAKE([dist-bzip2 dist-lzma -Wall])
-AC_CONFIG_SRCDIR([xprintidle.c])
+AC_INIT([xidletool], [0.1], [henoch@dtek.chalmers.se])
+AM_INIT_AUTOMAKE([dist-bzip2 -Wall])
+AC_CONFIG_SRCDIR([xidletool.c])
 
 # Checks for programs.
 AC_PROG_CC
