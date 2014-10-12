@@ -48,9 +48,9 @@ Display *dpy;
 
 int main(int argc, char *argv[])
 {
-  XScreenSaverInfo ssi;
-//  Display *dpy;
-  int event_basep, error_basep;
+	XScreenSaverInfo ssi;
+//	Display *dpy;
+	int event_basep, error_basep;
 
 	char verbose = 0;
 	unsigned long target = 0;
@@ -58,66 +58,66 @@ int main(int argc, char *argv[])
 
 	int c = 0;
 	while ((c = getopt (argc, argv, "vt:i:")) != -1)
-    switch (c)
-      {
-      case 'v':
+		switch (c)
+			{
+			case 'v':
 				verbose = 1;
-        break;
-      case 't':
+				break;
+			case 't':
 				target = atoi(optarg);
-        break;
-      case 'i':
-        interval = atoi(optarg) * 1000;
-        break;
-      case '?':
-        if (optopt == 't' || optopt == 'c')
-          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-        else if (isprint (optopt))
-          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-        else
-          fprintf (stderr,
-                   "Unknown option character `\\x%x'.\n",
-                   optopt);
+				break;
+			case 'i':
+				interval = atoi(optarg) * 1000;
+				break;
+			case '?':
+				if (optopt == 't' || optopt == 'c')
+					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				else if (isprint (optopt))
+					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+				else
+					fprintf (stderr,
+									 "Unknown option character `\\x%x'.\n",
+									 optopt);
 				usage(argv[0]);
-        return 1;
-      default:
+				return 1;
+			default:
 				usage(argv[0]);
-      }
+			}
 
-  if ( ! ( target >= 0 && interval > 0 ) ) {
-    usage(argv[0]);
-    return 1;
-  }
+	if ( ! ( target >= 0 && interval > 0 ) ) {
+		usage(argv[0]);
+		return 1;
+	}
 
 	if ( target == 0 )
 		verbose = 1;
 
-  dpy = XOpenDisplay(NULL);
-  if (dpy == NULL) {
-    fprintf(stderr, "couldn't open display\n");
-    return 1;
-  }
+	dpy = XOpenDisplay(NULL);
+	if (dpy == NULL) {
+		fprintf(stderr, "couldn't open display\n");
+		return 1;
+	}
 
-  struct sigaction act;
-  memset (&act, '\0', sizeof(act));
+	struct sigaction act;
+	memset (&act, '\0', sizeof(act));
  
-  /* Use the sa_sigaction field because the handles has two additional parameters */
-  act.sa_sigaction = &signal_callback_handler;
+	/* Use the sa_sigaction field because the handles has two additional parameters */
+	act.sa_sigaction = &signal_callback_handler;
 
-  /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
-  act.sa_flags = SA_SIGINFO;
+	/* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
+	act.sa_flags = SA_SIGINFO;
 
-  // Register signal and signal handler
-  if (sigaction(SIGTERM, &act, NULL) < 0) {
-    perror ("sigaction");
-    return 1;
-  }
+	// Register signal and signal handler
+	if (sigaction(SIGTERM, &act, NULL) < 0) {
+		perror ("sigaction");
+		return 1;
+	}
 
-  setlinebuf(stdout);
+	setlinebuf(stdout);
 
 	unsigned long current = 0;
 	while (target == 0 || current < target) {
-    usleep(interval);
+		usleep(interval);
 
 		if (!XScreenSaverQueryExtension(dpy, &event_basep, &error_basep)) {
 			fprintf(stderr, "screen saver extension not supported\n");
@@ -132,29 +132,29 @@ int main(int argc, char *argv[])
 		current = workaroundCreepyXServer(dpy, ssi.idle);
 		if (verbose)
 			printf("%lu - %lu - %lu\n", time(NULL), target, current);
-  }
+	}
 	if ( target > 0 )
 		printf("Reached idle target: %lu | timestamp: %lu\n", current, time(NULL));
 
-  return 0;
+	return 0;
 }
 
 static void signal_callback_handler(int sig, siginfo_t *siginfo, void *context) {
-  XCloseDisplay(dpy);
+	XCloseDisplay(dpy);
 }
 
 void usage(char *name)
 {
-  fprintf(stderr,
-    "Usage:\n"
-    "%s [-t target] [-i interval] [-v]\n"
+	fprintf(stderr,
+		"Usage:\n"
+		"%s [-t target] [-i interval] [-v]\n"
 		"\t-t target in milliseconds\n"
 		"\t\trun until system has been idle for target milliseconds\n"
 		"\t-i interval in milliseconds\n"
 		"\t\tcheck idle time every -i milliseconds\n"
-    "By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
-    "The user's idle time in milliseconds is printed on stdout.\n",
-    name, name);
+		"By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
+		"The user's idle time in milliseconds is printed on stdout.\n",
+		name, name);
 }
 
 /*!
@@ -175,38 +175,38 @@ void usage(char *name)
  * \return a unsigned long with the corrected idletime
  */
 unsigned long workaroundCreepyXServer(Display *dpy, unsigned long _idleTime ){
-  int dummy;
-  CARD16 standby, suspend, off;
-  CARD16 state;
-  BOOL onoff;
+	int dummy;
+	CARD16 standby, suspend, off;
+	CARD16 state;
+	BOOL onoff;
 
-  if (DPMSQueryExtension(dpy, &dummy, &dummy)) {
-    if (DPMSCapable(dpy)) {
-      DPMSGetTimeouts(dpy, &standby, &suspend, &off);
-      DPMSInfo(dpy, &state, &onoff);
+	if (DPMSQueryExtension(dpy, &dummy, &dummy)) {
+		if (DPMSCapable(dpy)) {
+			DPMSGetTimeouts(dpy, &standby, &suspend, &off);
+			DPMSInfo(dpy, &state, &onoff);
 
-      if (onoff) {
-        switch (state) {
-          case DPMSModeStandby:
-            /* this check is a littlebit paranoid, but be sure */
-            if (_idleTime < (unsigned) (standby * 1000))
-              _idleTime += (standby * 1000);
-            break;
-          case DPMSModeSuspend:
-            if (_idleTime < (unsigned) ((suspend + standby) * 1000))
-              _idleTime += ((suspend + standby) * 1000);
-            break;
-          case DPMSModeOff:
-            if (_idleTime < (unsigned) ((off + suspend + standby) * 1000))
-              _idleTime += ((off + suspend + standby) * 1000);
-            break;
-          case DPMSModeOn:
-          default:
-            break;
-        }
-      }
-    } 
-  }
+			if (onoff) {
+				switch (state) {
+					case DPMSModeStandby:
+						/* this check is a littlebit paranoid, but be sure */
+						if (_idleTime < (unsigned) (standby * 1000))
+							_idleTime += (standby * 1000);
+						break;
+					case DPMSModeSuspend:
+						if (_idleTime < (unsigned) ((suspend + standby) * 1000))
+							_idleTime += ((suspend + standby) * 1000);
+						break;
+					case DPMSModeOff:
+						if (_idleTime < (unsigned) ((off + suspend + standby) * 1000))
+							_idleTime += ((off + suspend + standby) * 1000);
+						break;
+					case DPMSModeOn:
+					default:
+						break;
+				}
+			}
+		}
+	}
 
-  return _idleTime;
+	return _idleTime;
 }
