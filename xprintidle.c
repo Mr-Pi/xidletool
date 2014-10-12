@@ -53,15 +53,22 @@ int main(int argc, char *argv[])
 	int event_basep, error_basep;
 
 	char verbose = 0;
-	unsigned long target = 0;
+	char quiet = 0;
+	long target = 0;
 	unsigned long interval = 1000000;
 
 	int c = 0;
-	while ((c = getopt (argc, argv, "vt:i:")) != -1)
+	while ((c = getopt (argc, argv, "svqt:i:")) != -1)
 		switch (c)
 			{
+			case 's':
+				target = -1;
+				break;
 			case 'v':
 				verbose = 1;
+				break;
+			case 'q':
+				quiet = 1;
 				break;
 			case 't':
 				target = atoi(optarg);
@@ -84,12 +91,12 @@ int main(int argc, char *argv[])
 				usage(argv[0]);
 			}
 
-	if ( ! ( target >= 0 && interval > 0 ) ) {
+	if (!(target >= -1 && interval > 0)) {
 		usage(argv[0]);
 		return 1;
 	}
 
-	if ( target == 0 )
+	if (target == 0)
 		verbose = 1;
 
 	dpy = XOpenDisplay(NULL);
@@ -116,8 +123,9 @@ int main(int argc, char *argv[])
 	setlinebuf(stdout);
 
 	unsigned long current = 0;
-	while (target == 0 || current < target) {
-		usleep(interval);
+	while (target <= 0 || current < target) {
+		if (target != -1)
+			usleep(interval);
 
 		if (!XScreenSaverQueryExtension(dpy, &event_basep, &error_basep)) {
 			fprintf(stderr, "screen saver extension not supported\n");
@@ -130,10 +138,14 @@ int main(int argc, char *argv[])
 		}
 
 		current = workaroundCreepyXServer(dpy, ssi.idle);
+		if (target == -1) {
+			printf("%lu\n", current);
+			return 0;
+		}
 		if (verbose)
 			printf("%lu - %lu\n", time(NULL), current);
 	}
-	if ( target > 0 )
+	if (!quiet && target > 0)
 		printf("Reached idle target: %lu | timestamp: %lu\n", current, time(NULL));
 
 	return 0;
@@ -147,11 +159,18 @@ void usage(char *name)
 {
 	fprintf(stderr,
 		"Usage:\n"
-		"%s [-t target] [-i interval] [-v]\n"
-		"\t-t target in milliseconds\n"
-		"\t\trun until system has been idle for target milliseconds\n"
-		"\t-i interval in milliseconds\n"
-		"\t\tcheck idle time every -i milliseconds\n"
+		"%s [-s] [-t target] [-i interval] [-q] [-v]\n"
+		"  -s\n"
+		"       print the current idle time and exit\n"
+		"  -i interval (in milliseconds)\n"
+		"       check idle time every <interval> milliseconds\n"
+		"  -t target (in milliseconds)\n"
+		"       run until system has been idle for target milliseconds\n"
+		"  -q\n"
+		"       when target is reached, don't print anything, just exit\n"
+		"  -v\n"
+		"       print a message on each interval in target mode\n"
+		"Note that -s and -t are mutually exclusive, only the last one matters.\n"
 		"By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
 		"The user's idle time in milliseconds is printed on stdout.\n",
 		name, name);
