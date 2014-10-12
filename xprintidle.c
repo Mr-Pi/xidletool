@@ -9,6 +9,8 @@ Copyright (c) 2005, 2008 Magnus Henoch <henoch@dtek.chalmers.se>
 Copyright (c) 2006, 2007 by Danny Kukawka
                          <dkukawka@suse.de>, <danny.kukawka@web.de>
 Copyright (c) 2008 Eivind Magnus Hvidevold <hvidevold@gmail.com>
+Copyright (c) 2014 Alex Alexander
+                   <wired@gentoo.org> <alex.alexander@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License
@@ -50,26 +52,61 @@ int main(int argc, char *argv[])
 //  Display *dpy;
   int event_basep, error_basep;
 
-  if (argc != 1) {
+	char verbose = 0;
+	unsigned long target = 0;
+	unsigned long interval = 1000000;
+
+	int c = 0;
+	while ((c = getopt (argc, argv, "vt:i:")) != -1)
+    switch (c)
+      {
+      case 'v':
+				verbose = 1;
+        break;
+      case 't':
+				target = atoi(optarg);
+        break;
+      case 'i':
+        interval = atoi(optarg) * 1000;
+        break;
+      case '?':
+        if (optopt == 't' || optopt == 'c')
+          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+        else if (isprint (optopt))
+          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+				usage(argv[0]);
+        return 1;
+      default:
+				usage(argv[0]);
+      }
+
+  if ( ! ( target >= 0 && interval > 0 ) ) {
     usage(argv[0]);
     return 1;
   }
-  
+
+	if ( target == 0 )
+		verbose = 1;
+
   dpy = XOpenDisplay(NULL);
   if (dpy == NULL) {
     fprintf(stderr, "couldn't open display\n");
     return 1;
   }
-  
+
   struct sigaction act;
   memset (&act, '\0', sizeof(act));
  
   /* Use the sa_sigaction field because the handles has two additional parameters */
   act.sa_sigaction = &signal_callback_handler;
-		 
+
   /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
   act.sa_flags = SA_SIGINFO;
-			 
+
   // Register signal and signal handler
   if (sigaction(SIGTERM, &act, NULL) < 0) {
     perror ("sigaction");
@@ -78,22 +115,27 @@ int main(int argc, char *argv[])
 
   setlinebuf(stdout);
 
-  while(1) {
-	  
-    if (!XScreenSaverQueryExtension(dpy, &event_basep, &error_basep)) {
-      fprintf(stderr, "screen saver extension not supported\n");
-      return 1;
-    }
-  
-    if (!XScreenSaverQueryInfo(dpy, DefaultRootWindow(dpy), &ssi)) {
-      fprintf(stderr, "couldn't query screen saver info\n");
-      return 1;
-    }
+	unsigned long current = 0;
+	while (target == 0 || current < target) {
+    usleep(interval);
 
-    printf("%lu\t%lu\n", time(NULL), workaroundCreepyXServer(dpy, ssi.idle));
-    sleep(1);
+		if (!XScreenSaverQueryExtension(dpy, &event_basep, &error_basep)) {
+			fprintf(stderr, "screen saver extension not supported\n");
+			return 1;
+		}
+
+		if (!XScreenSaverQueryInfo(dpy, DefaultRootWindow(dpy), &ssi)) {
+			fprintf(stderr, "couldn't query screen saver info\n");
+			return 1;
+		}
+
+		current = workaroundCreepyXServer(dpy, ssi.idle);
+		if (verbose)
+			printf("%lu - %lu - %lu\n", time(NULL), target, current);
   }
-  
+	if ( target > 0 )
+		printf("Reached idle target: %lu | timestamp: %lu\n", current, time(NULL));
+
   return 0;
 }
 
@@ -104,11 +146,15 @@ static void signal_callback_handler(int sig, siginfo_t *siginfo, void *context) 
 void usage(char *name)
 {
   fprintf(stderr,
-	  "Usage:\n"
-	  "%s\n"
-	  "That is, no command line arguments.  The user's idle time\n"
-	  "in milliseconds is printed on stdout.\n",
-	  name);
+    "Usage:\n"
+    "%s [-t target] [-i interval] [-v]\n"
+		"\t-t target in milliseconds\n"
+		"\t\trun until system has been idle for target milliseconds\n"
+		"\t-i interval in milliseconds\n"
+		"\t\tcheck idle time every -i milliseconds\n"
+    "By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
+    "The user's idle time in milliseconds is printed on stdout.\n",
+    name, name);
 }
 
 /*!
