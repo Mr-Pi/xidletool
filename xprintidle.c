@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
 		current = workaroundCreepyXServer(dpy, ssi.idle);
 		if (verbose)
-			printf("%lu - %lu - %lu\n", time(NULL), target, current);
+			printf("%lu - %lu\n", time(NULL), current);
 	}
 	if ( target > 0 )
 		printf("Reached idle target: %lu | timestamp: %lu\n", current, time(NULL));
