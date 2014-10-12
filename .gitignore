@@ -11,3 +11,6 @@
 /install-sh
 /missing
 /notes.txt
+/xidletool
+*.o
+.deps/
