@@ -10,11 +10,7 @@ make install
 
 Building from git: 
 
-autoreconf
-automake -c --add-missing
-autoreconf
-./configure
-make
+aclocal && autoconf && automake -a && ./configure && make
 make install
 
 You need the development files for the Xss library.
