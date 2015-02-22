@@ -34,6 +34,8 @@ the GNU GPL, version 2 _only_.
 
 */
 
+#define VERSION "0.3"
+
 #include <X11/Xlib.h>
 #include <X11/extensions/dpms.h>
 #include <X11/extensions/scrnsaver.h>
@@ -45,6 +47,7 @@ the GNU GPL, version 2 _only_.
 #include <stdbool.h>
 
 void usage(char *name);
+void thisVersion(char *name);
 unsigned long workaroundCreepyXServer(Display *dpy, unsigned long _idleTime );
 static void signal_callback_handler(int sig, siginfo_t *siginfo, void *context);
 
@@ -62,7 +65,7 @@ int main(int argc, char *argv[])
 	unsigned long interval = 1000000;
 
 	int c = 0;
-	while ((c = getopt (argc, argv, "svqt:i:")) != -1)
+	while ((c = getopt (argc, argv, "svVqt:i:")) != -1)
 		switch (c)
 			{
 			case 's': //just print idleTime
@@ -79,6 +82,10 @@ int main(int argc, char *argv[])
 				break;
 			case 'i':
 				interval = atoi(optarg) * 1000;
+				break;
+			case 'V':
+				thisVersion(argv[0]);
+				return 0;
 				break;
 			case '?':
 				if (optopt == 't' || optopt == 'c')
@@ -173,11 +180,28 @@ void usage(char *name)
 		"  -q\n"
 		"       be quiet, don't print anything (only useful when in target mode)\n"
 		"  -v\n"
-		"       print timestamp and ideltime(default is only ideltime)\n\n"
+		"       print timestamp and ideltime(default is only ideltime)\n"
+		"  -V\n"
+		"       show version and authors\n"
+		"\n"
 		"Note that -s and -t are mutually exclusive, only the last one matters.\n"
 		"By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
 		"The user's idle time in milliseconds is printed on stdout.\n",
 		name, name);
+}
+
+void thisVersion(char *name) {
+	printf(	"%s v. %s\n"
+		"\n"
+		"AUTHORS:\n"
+		"Copyright (c) 2005, 2008 Magnus Henoch <henoch@dtek.chalmers.se>\n"
+		"Copyright (c) 2006, 2007 by Danny Kukawka\n"
+		"                         <dkukawka@suse.de>, <danny.kukawka@web.de>\n"
+		"Copyright (c) 2008 Eivind Magnus Hvidevold <hvidevold@gmail.com>\n"
+		"Copyright (c) 2014 Alex Alexander\n"
+		"                   <wired@gentoo.org> <alex.alexander@gmail.com>\n"
+		"Copyright (c) 1015 Markus Mr. <github-contact@mr-pi.de>\n",
+		name, VERSION);
 }
 
 /*!

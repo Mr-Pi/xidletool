@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT([xidletool], [0.2], [github-contact@mr-pi.de])
+AC_INIT([xidletool], [0.3], [github-contact@mr-pi.de])
 AM_INIT_AUTOMAKE([foreign dist-bzip2 -Wall])
 AC_CONFIG_SRCDIR([xidletool.c])
 
