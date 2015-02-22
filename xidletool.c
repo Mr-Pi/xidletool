@@ -12,6 +12,7 @@ Copyright (c) 2006, 2007 by Danny Kukawka
 Copyright (c) 2008 Eivind Magnus Hvidevold <hvidevold@gmail.com>
 Copyright (c) 2014 Alex Alexander
                    <wired@gentoo.org> <alex.alexander@gmail.com>
+Copyright (c) 1015 Markus Mr. <github-contact@mr-pi.de>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
 				verbose = true;
 				break;
 			case 'q': //be quiet (only useful if -t specified)
-				quiet = 1;
+				quiet = true;
 				break;
 			case 't': //timeout
 				target = atoi(optarg);
@@ -170,9 +171,9 @@ void usage(char *name)
 		"  -t target (in milliseconds)\n"
 		"       run until system has been idle for target milliseconds\n"
 		"  -q\n"
-		"       when target is reached, don't print anything, just exit\n"
+		"       be quiet, don't print anything (only useful when in target mode)\n"
 		"  -v\n"
-		"       print a message on each interval in target mode\n"
+		"       print timestamp and ideltime(default is only ideltime)\n\n"
 		"Note that -s and -t are mutually exclusive, only the last one matters.\n"
 		"By default, %s runs indefinitely with an interval of 1000 milliseconds.\n"
 		"The user's idle time in milliseconds is printed on stdout.\n",
