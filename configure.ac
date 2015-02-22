@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.62)
 AC_INIT([xidletool], [0.2], [github-contact@mr-pi.de])
-AM_INIT_AUTOMAKE([dist-bzip2 -Wall])
+AM_INIT_AUTOMAKE([foreign dist-bzip2 -Wall])
 AC_CONFIG_SRCDIR([xidletool.c])
 
 # Checks for programs.
