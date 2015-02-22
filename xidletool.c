@@ -41,6 +41,7 @@ the GNU GPL, version 2 _only_.
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <stdbool.h>
 
 void usage(char *name);
 unsigned long workaroundCreepyXServer(Display *dpy, unsigned long _idleTime );
@@ -54,8 +55,8 @@ int main(int argc, char *argv[])
 //	Display *dpy;
 	int event_basep, error_basep;
 
-	char verbose = 0;
-	char quiet = 0;
+	bool verbose = false;
+	bool quiet = false;
 	long target = 0;
 	unsigned long interval = 1000000;
 
@@ -63,16 +64,16 @@ int main(int argc, char *argv[])
 	while ((c = getopt (argc, argv, "svqt:i:")) != -1)
 		switch (c)
 			{
-			case 's':
+			case 's': //just print idleTime
 				target = -1;
 				break;
-			case 'v':
-				verbose = 1;
+			case 'v': //verbose
+				verbose = true;
 				break;
-			case 'q':
+			case 'q': //be quiet (only useful if -t specified)
 				quiet = 1;
 				break;
-			case 't':
+			case 't': //timeout
 				target = atoi(optarg);
 				break;
 			case 'i':
@@ -97,9 +98,6 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 		return 1;
 	}
-
-	if (target == 0)
-		verbose = 1;
 
 	dpy = XOpenDisplay(NULL);
 	if (dpy == NULL) {
@@ -144,8 +142,11 @@ int main(int argc, char *argv[])
 			printf("%lu\n", current);
 			return 0;
 		}
-		if (verbose)
-			printf("%lu - %lu\n", time(NULL), current);
+		if (!quiet)
+			if (verbose)
+				printf("%lu - %lu\n", time(NULL), current);
+			else
+				printf("%lu\n", current);
 	}
 	if (!quiet && target > 0)
 		printf("Reached idle target: %lu | timestamp: %lu\n", current, time(NULL));
