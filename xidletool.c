@@ -200,7 +200,7 @@ void thisVersion(char *name) {
 		"Copyright (c) 2008 Eivind Magnus Hvidevold <hvidevold@gmail.com>\n"
 		"Copyright (c) 2014 Alex Alexander\n"
 		"                   <wired@gentoo.org> <alex.alexander@gmail.com>\n"
-		"Copyright (c) 1015 Markus Mr. <github-contact@mr-pi.de>\n",
+		"Copyright (c) 2015 Markus Mr. <github-contact@mr-pi.de>\n",
 		name, VERSION);
 }
 
